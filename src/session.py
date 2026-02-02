@@ -1,8 +1,7 @@
 """Session management for Tableau API authentication tokens."""
 
 import json
-import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 SESSION_FILE = Path(__file__).parent.parent / ".session.json"
@@ -41,7 +40,7 @@ def save_session(token: str, site_id: str, user_id: str) -> None:
         "token": token,
         "site_id": site_id,
         "user_id": user_id,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
     with open(SESSION_FILE, "w") as f:
@@ -71,8 +70,10 @@ def is_session_valid(session: dict | None = None) -> bool:
 
     try:
         timestamp = datetime.fromisoformat(session["timestamp"])
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=timezone.utc)
         expiry = timestamp + timedelta(minutes=SESSION_TIMEOUT_MINUTES)
-        return datetime.utcnow() < expiry
+        return datetime.now(timezone.utc) < expiry
     except (KeyError, ValueError):
         return False
 
@@ -89,8 +90,10 @@ def get_session_info() -> dict | None:
 
     try:
         timestamp = datetime.fromisoformat(session["timestamp"])
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=timezone.utc)
         expiry = timestamp + timedelta(minutes=SESSION_TIMEOUT_MINUTES)
-        remaining = expiry - datetime.utcnow()
+        remaining = expiry - datetime.now(timezone.utc)
 
         return {
             "site_id": session["site_id"],
