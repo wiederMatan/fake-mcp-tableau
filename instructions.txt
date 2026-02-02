@@ -54,6 +54,11 @@ python -m src.cli_entry list projects
 python -m src.cli_entry list workbooks
 ```
 
+**List Views**:
+```bash
+python -m src.cli_entry list views
+```
+
 **List Data Sources**:
 ```bash
 python -m src.cli_entry list datasources
@@ -89,6 +94,26 @@ python -m src.cli_entry list subscriptions
 python -m src.cli_entry list refresh-tasks
 ```
 
+**List Flows**:
+```bash
+python -m src.cli_entry list flows
+```
+
+**List Webhooks**:
+```bash
+python -m src.cli_entry list webhooks
+```
+
+**List Data Alerts**:
+```bash
+python -m src.cli_entry list data-alerts
+```
+
+**List Custom Views**:
+```bash
+python -m src.cli_entry list custom-views
+```
+
 ### Getting Resource Details
 
 **Get Workbook**:
@@ -114,6 +139,51 @@ python -m src.cli_entry get job <job_id>
 **Get View**:
 ```bash
 python -m src.cli_entry get view <view_id>
+```
+
+**Get Project**:
+```bash
+python -m src.cli_entry get project <project_id>
+```
+
+**Get Flow**:
+```bash
+python -m src.cli_entry get flow <flow_id>
+```
+
+**Get Webhook**:
+```bash
+python -m src.cli_entry get webhook <webhook_id>
+```
+
+**Get Schedule**:
+```bash
+python -m src.cli_entry get schedule <schedule_id>
+```
+
+**Get Task**:
+```bash
+python -m src.cli_entry get task <task_id>
+```
+
+**Get Data Alert**:
+```bash
+python -m src.cli_entry get data-alert <alert_id>
+```
+
+**Get Custom View**:
+```bash
+python -m src.cli_entry get custom-view <custom_view_id>
+```
+
+**Get Site**:
+```bash
+python -m src.cli_entry get site
+```
+
+**Get Server Info**:
+```bash
+python -m src.cli_entry get server-info
 ```
 
 ### User Management
@@ -145,6 +215,53 @@ python -m src.cli_entry group add-user <group_id> --user <user_id>
 python -m src.cli_entry group remove-user <group_id> --user <user_id>
 ```
 
+**Create Group**:
+```bash
+python -m src.cli_entry group create --name <group_name>
+```
+
+**Update Group**:
+```bash
+python -m src.cli_entry group update <group_id> --name <new_name>
+```
+
+**Delete Group**:
+```bash
+python -m src.cli_entry group delete <group_id>
+```
+
+### Project Management
+
+**Create Project**:
+```bash
+python -m src.cli_entry project create --name <project_name> [--description <desc>] [--parent <parent_id>]
+```
+
+**Update Project**:
+```bash
+python -m src.cli_entry project update <project_id> [--name <name>] [--description <desc>]
+```
+
+**Delete Project**:
+```bash
+python -m src.cli_entry project delete <project_id>
+```
+
+**Get Project Permissions**:
+```bash
+python -m src.cli_entry project-permissions get <project_id>
+```
+
+**Add Project Permission**:
+```bash
+python -m src.cli_entry project-permissions add <project_id> --user <user_id> --capability <name> --mode Allow|Deny
+```
+
+**Delete Project Permission**:
+```bash
+python -m src.cli_entry project-permissions delete <project_id> --user <user_id> --capability <name> --mode Allow|Deny
+```
+
 ### Workbook Management
 
 **List Workbook Views**:
@@ -157,6 +274,110 @@ python -m src.cli_entry workbook views <workbook_id>
 python -m src.cli_entry workbook delete <workbook_id>
 ```
 
+**Update Workbook**:
+```bash
+python -m src.cli_entry workbook update <workbook_id> [--name <name>] [--project <project_id>] [--show-tabs <true|false>]
+```
+
+**Refresh Workbook**:
+```bash
+python -m src.cli_entry workbook refresh <workbook_id>
+```
+
+**Get Workbook Revisions**:
+```bash
+python -m src.cli_entry workbook revisions <workbook_id>
+```
+
+**Download Workbook**:
+```bash
+python -m src.cli_entry workbook download <workbook_id> --filepath <path.twbx>
+```
+
+**Download Workbook PDF**:
+```bash
+python -m src.cli_entry workbook download-pdf <workbook_id> --filepath <path.pdf>
+```
+
+**Download Workbook PowerPoint**:
+```bash
+python -m src.cli_entry workbook download-pptx <workbook_id> --filepath <path.pptx>
+```
+
+**Add Tag to Workbook**:
+```bash
+python -m src.cli_entry workbook add-tag <workbook_id> --tag <tag_name>
+```
+
+**Delete Tag from Workbook**:
+```bash
+python -m src.cli_entry workbook delete-tag <workbook_id> --tag <tag_name>
+```
+
+### View Management
+
+**Delete View**:
+```bash
+python -m src.cli_entry view delete <view_id>
+```
+
+**Download View Image**:
+```bash
+python -m src.cli_entry view download-image <view_id> --filepath <path.png>
+```
+
+**Download View PDF**:
+```bash
+python -m src.cli_entry view download-pdf <view_id> --filepath <path.pdf>
+```
+
+**Download View Data**:
+```bash
+python -m src.cli_entry view download-data <view_id> --filepath <path.csv>
+```
+
+**Download View Crosstab**:
+```bash
+python -m src.cli_entry view download-crosstab <view_id> --filepath <path.xlsx>
+```
+
+**Add Tag to View**:
+```bash
+python -m src.cli_entry view add-tag <view_id> --tag <tag_name>
+```
+
+**Delete Tag from View**:
+```bash
+python -m src.cli_entry view delete-tag <view_id> --tag <tag_name>
+```
+
+**Get View by Path**:
+```bash
+python -m src.cli_entry view get-by-path --name <view_name>
+```
+
+**Get View Recommendations**:
+```bash
+python -m src.cli_entry view recommendations <view_id>
+```
+
+### Custom View Management
+
+**Update Custom View**:
+```bash
+python -m src.cli_entry custom-view update <custom_view_id> [--name <name>] [--owner <user_id>]
+```
+
+**Delete Custom View**:
+```bash
+python -m src.cli_entry custom-view delete <custom_view_id>
+```
+
+**Download Custom View Image**:
+```bash
+python -m src.cli_entry custom-view download-image <custom_view_id> --filepath <path.png>
+```
+
 ### Data Source Management
 
 **Delete Data Source**:
@@ -164,11 +385,136 @@ python -m src.cli_entry workbook delete <workbook_id>
 python -m src.cli_entry datasource delete <datasource_id>
 ```
 
+**Update Data Source**:
+```bash
+python -m src.cli_entry datasource update <datasource_id> [--name <name>] [--project <project_id>] [--certified <true|false>]
+```
+
+**Refresh Data Source**:
+```bash
+python -m src.cli_entry datasource refresh <datasource_id>
+```
+
+**Download Data Source**:
+```bash
+python -m src.cli_entry datasource download <datasource_id> --filepath <path.tdsx>
+```
+
+**Get Data Source Revisions**:
+```bash
+python -m src.cli_entry datasource revisions <datasource_id>
+```
+
+**Add Tag to Data Source**:
+```bash
+python -m src.cli_entry datasource add-tag <datasource_id> --tag <tag_name>
+```
+
+**Delete Tag from Data Source**:
+```bash
+python -m src.cli_entry datasource delete-tag <datasource_id> --tag <tag_name>
+```
+
+### Flow Management
+
+**Delete Flow**:
+```bash
+python -m src.cli_entry flow delete <flow_id>
+```
+
+**Run Flow**:
+```bash
+python -m src.cli_entry flow run <flow_id>
+```
+
+**Update Flow**:
+```bash
+python -m src.cli_entry flow update <flow_id> [--name <name>] [--project <project_id>]
+```
+
+**Get Flow Runs**:
+```bash
+python -m src.cli_entry flow runs <flow_id>
+```
+
+**Get Flow Permissions**:
+```bash
+python -m src.cli_entry flow-permissions get <flow_id>
+```
+
+**Add Flow Permission**:
+```bash
+python -m src.cli_entry flow-permissions add <flow_id> --user <user_id> --capability <name> --mode Allow|Deny
+```
+
+**Delete Flow Permission**:
+```bash
+python -m src.cli_entry flow-permissions delete <flow_id> --user <user_id> --capability <name> --mode Allow|Deny
+```
+
+**Add Tag to Flow**:
+```bash
+python -m src.cli_entry flow add-tag <flow_id> --tag <tag_name>
+```
+
+**Delete Tag from Flow**:
+```bash
+python -m src.cli_entry flow delete-tag <flow_id> --tag <tag_name>
+```
+
+### Webhook Management
+
+**Create Webhook**:
+```bash
+python -m src.cli_entry webhook create --name <name> --url <destination_url> --event <event_name>
+```
+
+**Delete Webhook**:
+```bash
+python -m src.cli_entry webhook delete <webhook_id>
+```
+
+**Test Webhook**:
+```bash
+python -m src.cli_entry webhook test <webhook_id>
+```
+
+Webhook event types: `datasource-refresh-started`, `datasource-refresh-succeeded`, `datasource-refresh-failed`, `workbook-refresh-started`, `workbook-refresh-succeeded`, `workbook-refresh-failed`, `workbook-updated`, `workbook-created`, `workbook-deleted`, `datasource-updated`, `datasource-created`, `datasource-deleted`, `view-deleted`, `label-created-or-updated`, `label-deleted`
+
+### Data Alert Management
+
+**Delete Data Alert**:
+```bash
+python -m src.cli_entry data-alert delete <alert_id>
+```
+
+**Add User to Data Alert**:
+```bash
+python -m src.cli_entry data-alert add-user <alert_id> --user <user_id>
+```
+
+**Remove User from Data Alert**:
+```bash
+python -m src.cli_entry data-alert remove-user <alert_id> --user <user_id>
+```
+
 ### Extract Refresh Operations
 
 **Trigger Extract Refresh**:
 ```bash
 python -m src.cli_entry refresh <task_id>
+```
+
+### Task Management
+
+**Run Task**:
+```bash
+python -m src.cli_entry task run <task_id>
+```
+
+**Delete Task**:
+```bash
+python -m src.cli_entry task delete <task_id>
 ```
 
 ### Job Management
@@ -188,6 +534,38 @@ python -m src.cli_entry schedule add-workbook <schedule_id> --workbook <workbook
 **Add Data Source to Schedule**:
 ```bash
 python -m src.cli_entry schedule add-datasource <schedule_id> --datasource <datasource_id>
+```
+
+**Create Schedule** (Tableau Server only):
+```bash
+python -m src.cli_entry schedule create --name <name> --frequency <Hourly|Daily|Weekly|Monthly> --start-time <HH:MM:SS>
+```
+
+**Update Schedule** (Tableau Server only):
+```bash
+python -m src.cli_entry schedule update <schedule_id> [--name <name>] [--frequency <freq>] [--start-time <time>] [--state Active|Suspended]
+```
+
+**Delete Schedule** (Tableau Server only):
+```bash
+python -m src.cli_entry schedule delete <schedule_id>
+```
+
+### Site Management (Tableau Server only)
+
+**Create Site**:
+```bash
+python -m src.cli_entry site create --name <name> --content-url <content_url>
+```
+
+**Update Site**:
+```bash
+python -m src.cli_entry site update [--name <name>] [--content-url <url>] [--state Active|Suspended]
+```
+
+**Delete Site**:
+```bash
+python -m src.cli_entry site delete <site_id>
 ```
 
 ### Workbook Permissions
@@ -224,13 +602,18 @@ python -m src.cli_entry datasource-permissions add <datasource_id> --user <user_
 python -m src.cli_entry datasource-permissions delete <datasource_id> --user <user_id> --capability <name> --mode Allow|Deny
 ```
 
-Common capabilities: Read, Write, Filter, ExportData, ViewComments, AddComment, ShareView, ExportImage, Delete, ChangePermissions, WebAuthoring, Connect
+Common capabilities: Read, Write, Filter, ExportData, ViewComments, AddComment, ShareView, ExportImage, Delete, ChangePermissions, WebAuthoring, Connect, Execute, Run
 
 ### Subscription Management
 
 **Create Subscription**:
 ```bash
 python -m src.cli_entry subscription create --subject "Daily Report" --user <user_id> --schedule <schedule_id> --content-type View|Workbook --content-id <content_id>
+```
+
+**Update Subscription**:
+```bash
+python -m src.cli_entry subscription update <subscription_id> [--subject <subject>] [--schedule <schedule_id>]
 ```
 
 **Delete Subscription**:
@@ -247,12 +630,12 @@ python -m src.cli_entry favorites list [--user <user_id>]
 
 **Add Favorite**:
 ```bash
-python -m src.cli_entry favorites add --content-type workbook|view|datasource|project --content-id <id> --label "My Favorite"
+python -m src.cli_entry favorites add --content-type workbook|view|datasource|project|flow --content-id <id> --label "My Favorite"
 ```
 
 **Delete Favorite**:
 ```bash
-python -m src.cli_entry favorites delete --content-type workbook|view|datasource|project --content-id <id>
+python -m src.cli_entry favorites delete --content-type workbook|view|datasource|project|flow --content-id <id>
 ```
 
 ## Example Workflows
@@ -290,6 +673,38 @@ python -m src.cli_entry workbook views <workbook_id>
 python -m src.cli_entry subscription create --subject "Weekly Report" --user <user_id> --schedule <schedule_id> --content-type View --content-id <view_id>
 ```
 
+### 6. Work with Flows
+```bash
+python -m src.cli_entry list flows
+python -m src.cli_entry get flow <flow_id>
+python -m src.cli_entry flow run <flow_id>
+python -m src.cli_entry flow runs <flow_id>  # Check run history
+```
+
+### 7. Set Up a Webhook
+```bash
+python -m src.cli_entry webhook create --name "Refresh Notification" --url "https://example.com/webhook" --event "workbook-refresh-succeeded"
+python -m src.cli_entry webhook test <webhook_id>
+```
+
+### 8. Download Workbook Content
+```bash
+python -m src.cli_entry workbook download <workbook_id> --filepath ./my_workbook.twbx
+python -m src.cli_entry workbook download-pdf <workbook_id> --filepath ./my_workbook.pdf
+```
+
+### 9. Manage Projects
+```bash
+python -m src.cli_entry project create --name "New Project" --description "My new project"
+python -m src.cli_entry project-permissions add <project_id> --user <user_id> --capability Read --mode Allow
+```
+
+### 10. Work with Data Alerts
+```bash
+python -m src.cli_entry list data-alerts
+python -m src.cli_entry data-alert add-user <alert_id> --user <user_id>
+```
+
 ## Error Handling
 
 If a command fails, the response will have `"success": false` and an error message:
@@ -305,6 +720,7 @@ Common errors:
 - **401 Unauthorized**: Credentials invalid or session expired. Run `auth login` again.
 - **403 Forbidden**: User doesn't have permission for this operation.
 - **404 Not Found**: Resource ID doesn't exist.
+- **409 Conflict**: Resource already exists or operation conflicts with current state.
 - **500 Internal Server Error**: Tableau server issue, try again later.
 
 ## Notes
@@ -313,4 +729,6 @@ Common errors:
 - Always check `auth status` if operations are failing unexpectedly.
 - IDs in Tableau are LUIDs (Long Unique IDs) - use the exact values from list commands.
 - For Tableau Cloud, the site content URL is required in the .env configuration.
-- Some operations (list sites, list schedules) are only available on Tableau Server, not Tableau Cloud.
+- Some operations (list sites, schedules, site management) are only available on Tableau Server, not Tableau Cloud.
+- Download operations save files to the specified filepath. Ensure the directory exists.
+- Tags are case-sensitive.
