@@ -22,7 +22,7 @@ All responses are JSON formatted with the following structure:
 
 ### Authentication
 
-**Login** - Authenticate with Tableau using configured credentials:
+**Login** - Authenticate with Tableau:
 ```bash
 python -m src.cli_entry auth login
 ```
@@ -44,14 +44,44 @@ python -m src.cli_entry auth status
 python -m src.cli_entry list sites
 ```
 
-**List Projects** in current site:
+**List Projects**:
 ```bash
 python -m src.cli_entry list projects
 ```
 
-**List Workbooks** in current site:
+**List Workbooks**:
 ```bash
 python -m src.cli_entry list workbooks
+```
+
+**List Data Sources**:
+```bash
+python -m src.cli_entry list datasources
+```
+
+**List Users**:
+```bash
+python -m src.cli_entry list users
+```
+
+**List Groups**:
+```bash
+python -m src.cli_entry list groups
+```
+
+**List Jobs**:
+```bash
+python -m src.cli_entry list jobs
+```
+
+**List Schedules** (Tableau Server only):
+```bash
+python -m src.cli_entry list schedules
+```
+
+**List Subscriptions**:
+```bash
+python -m src.cli_entry list subscriptions
 ```
 
 **List Extract Refresh Tasks**:
@@ -61,9 +91,77 @@ python -m src.cli_entry list refresh-tasks
 
 ### Getting Resource Details
 
-**Get Workbook Details**:
+**Get Workbook**:
 ```bash
 python -m src.cli_entry get workbook <workbook_id>
+```
+
+**Get User**:
+```bash
+python -m src.cli_entry get user <user_id>
+```
+
+**Get Data Source**:
+```bash
+python -m src.cli_entry get datasource <datasource_id>
+```
+
+**Get Job**:
+```bash
+python -m src.cli_entry get job <job_id>
+```
+
+**Get View**:
+```bash
+python -m src.cli_entry get view <view_id>
+```
+
+### User Management
+
+**Add User**:
+```bash
+python -m src.cli_entry user add --username <username> --role <Creator|Explorer|Viewer>
+```
+
+**Remove User**:
+```bash
+python -m src.cli_entry user remove --user-id <user_id>
+```
+
+### Group Management
+
+**List Users in Group**:
+```bash
+python -m src.cli_entry group users <group_id>
+```
+
+**Add User to Group**:
+```bash
+python -m src.cli_entry group add-user <group_id> --user <user_id>
+```
+
+**Remove User from Group**:
+```bash
+python -m src.cli_entry group remove-user <group_id> --user <user_id>
+```
+
+### Workbook Management
+
+**List Workbook Views**:
+```bash
+python -m src.cli_entry workbook views <workbook_id>
+```
+
+**Delete Workbook**:
+```bash
+python -m src.cli_entry workbook delete <workbook_id>
+```
+
+### Data Source Management
+
+**Delete Data Source**:
+```bash
+python -m src.cli_entry datasource delete <datasource_id>
 ```
 
 ### Extract Refresh Operations
@@ -73,23 +171,88 @@ python -m src.cli_entry get workbook <workbook_id>
 python -m src.cli_entry refresh <task_id>
 ```
 
-### Permissions Management
+### Job Management
 
-**Get Workbook Permissions**:
+**Cancel Job**:
 ```bash
-python -m src.cli_entry permissions get <workbook_id>
+python -m src.cli_entry job cancel <job_id>
 ```
 
-**Add Permission** to workbook:
+### Schedule Management
+
+**Add Workbook to Schedule**:
 ```bash
-python -m src.cli_entry permissions add <workbook_id> --user <user_id> --capability <capability_name> --mode Allow|Deny
+python -m src.cli_entry schedule add-workbook <schedule_id> --workbook <workbook_id>
 ```
 
-Common capabilities: Read, Write, Filter, ExportData, ViewComments, AddComment, ShareView, ExportImage, Delete, ChangePermissions, WebAuthoring
-
-**Delete Permission** from workbook:
+**Add Data Source to Schedule**:
 ```bash
-python -m src.cli_entry permissions delete <workbook_id> --user <user_id> --capability <capability_name> --mode Allow|Deny
+python -m src.cli_entry schedule add-datasource <schedule_id> --datasource <datasource_id>
+```
+
+### Workbook Permissions
+
+**Get Permissions**:
+```bash
+python -m src.cli_entry workbook-permissions get <workbook_id>
+```
+
+**Add Permission**:
+```bash
+python -m src.cli_entry workbook-permissions add <workbook_id> --user <user_id> --capability <name> --mode Allow|Deny
+```
+
+**Delete Permission**:
+```bash
+python -m src.cli_entry workbook-permissions delete <workbook_id> --user <user_id> --capability <name> --mode Allow|Deny
+```
+
+### Data Source Permissions
+
+**Get Permissions**:
+```bash
+python -m src.cli_entry datasource-permissions get <datasource_id>
+```
+
+**Add Permission**:
+```bash
+python -m src.cli_entry datasource-permissions add <datasource_id> --user <user_id> --capability <name> --mode Allow|Deny
+```
+
+**Delete Permission**:
+```bash
+python -m src.cli_entry datasource-permissions delete <datasource_id> --user <user_id> --capability <name> --mode Allow|Deny
+```
+
+Common capabilities: Read, Write, Filter, ExportData, ViewComments, AddComment, ShareView, ExportImage, Delete, ChangePermissions, WebAuthoring, Connect
+
+### Subscription Management
+
+**Create Subscription**:
+```bash
+python -m src.cli_entry subscription create --subject "Daily Report" --user <user_id> --schedule <schedule_id> --content-type View|Workbook --content-id <content_id>
+```
+
+**Delete Subscription**:
+```bash
+python -m src.cli_entry subscription delete --subscription-id <subscription_id>
+```
+
+### Favorites Management
+
+**List Favorites**:
+```bash
+python -m src.cli_entry favorites list [--user <user_id>]
+```
+
+**Add Favorite**:
+```bash
+python -m src.cli_entry favorites add --content-type workbook|view|datasource|project --content-id <id> --label "My Favorite"
+```
+
+**Delete Favorite**:
+```bash
+python -m src.cli_entry favorites delete --content-type workbook|view|datasource|project --content-id <id>
 ```
 
 ## Example Workflows
@@ -103,12 +266,28 @@ python -m src.cli_entry list workbooks
 ### 2. Check and Refresh Extract
 ```bash
 python -m src.cli_entry list refresh-tasks
-python -m src.cli_entry refresh <task_id_from_list>
+python -m src.cli_entry refresh <task_id>
+python -m src.cli_entry list jobs  # Check job status
 ```
 
 ### 3. Grant User Read Access to Workbook
 ```bash
-python -m src.cli_entry permissions add abc123-workbook-id --user xyz789-user-id --capability Read --mode Allow
+python -m src.cli_entry list users  # Find user ID
+python -m src.cli_entry workbook-permissions add <workbook_id> --user <user_id> --capability Read --mode Allow
+```
+
+### 4. Add User to a Group
+```bash
+python -m src.cli_entry list groups
+python -m src.cli_entry list users
+python -m src.cli_entry group add-user <group_id> --user <user_id>
+```
+
+### 5. Create a Subscription
+```bash
+python -m src.cli_entry list schedules
+python -m src.cli_entry workbook views <workbook_id>
+python -m src.cli_entry subscription create --subject "Weekly Report" --user <user_id> --schedule <schedule_id> --content-type View --content-id <view_id>
 ```
 
 ## Error Handling
@@ -134,3 +313,4 @@ Common errors:
 - Always check `auth status` if operations are failing unexpectedly.
 - IDs in Tableau are LUIDs (Long Unique IDs) - use the exact values from list commands.
 - For Tableau Cloud, the site content URL is required in the .env configuration.
+- Some operations (list sites, list schedules) are only available on Tableau Server, not Tableau Cloud.

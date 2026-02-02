@@ -5,8 +5,11 @@ A Python CLI toolkit that acts as a bridge between Gemini CLI and Tableau REST A
 ## Features
 
 - **Authentication Management**: Sign in with Personal Access Tokens, automatic session persistence
-- **Resource Discovery**: List sites, projects, workbooks, and extract refresh tasks
-- **Operations**: Trigger extract refreshes, manage workbook permissions
+- **Resource Discovery**: List sites, projects, workbooks, data sources, users, groups, jobs, schedules, subscriptions
+- **User & Group Management**: Add/remove users, manage group membership
+- **Workbook & Data Source Operations**: View details, list views, delete resources, manage permissions
+- **Extract Refresh**: List tasks, trigger refreshes, monitor jobs
+- **Subscriptions & Favorites**: Create subscriptions, manage favorites
 - **Gemini-Ready Output**: All responses are JSON formatted for easy parsing
 
 ## Installation
@@ -55,57 +58,107 @@ python -m src.cli_entry <command> [options]
 ### Authentication
 
 ```bash
-# Sign in
-python -m src.cli_entry auth login
-
-# Check session status
-python -m src.cli_entry auth status
-
-# Sign out
-python -m src.cli_entry auth logout
+python -m src.cli_entry auth login      # Sign in
+python -m src.cli_entry auth status     # Check session
+python -m src.cli_entry auth logout     # Sign out
 ```
 
 ### Listing Resources
 
 ```bash
-# List all sites (Tableau Server only)
-python -m src.cli_entry list sites
-
-# List projects
+python -m src.cli_entry list sites          # Tableau Server only
 python -m src.cli_entry list projects
-
-# List workbooks
 python -m src.cli_entry list workbooks
-
-# List extract refresh tasks
+python -m src.cli_entry list datasources
+python -m src.cli_entry list users
+python -m src.cli_entry list groups
+python -m src.cli_entry list jobs
+python -m src.cli_entry list schedules      # Tableau Server only
+python -m src.cli_entry list subscriptions
 python -m src.cli_entry list refresh-tasks
 ```
 
-### Resource Details
+### Getting Resource Details
 
 ```bash
-# Get workbook details
-python -m src.cli_entry get workbook <workbook_id>
+python -m src.cli_entry get workbook <id>
+python -m src.cli_entry get user <id>
+python -m src.cli_entry get datasource <id>
+python -m src.cli_entry get job <id>
+python -m src.cli_entry get view <id>
 ```
 
-### Operations
+### User Management
 
 ```bash
-# Trigger extract refresh
+python -m src.cli_entry user add --username <name> --role Viewer|Explorer|Creator
+python -m src.cli_entry user remove --user-id <id>
+```
+
+### Group Management
+
+```bash
+python -m src.cli_entry group users <group_id>
+python -m src.cli_entry group add-user <group_id> --user <user_id>
+python -m src.cli_entry group remove-user <group_id> --user <user_id>
+```
+
+### Workbook Operations
+
+```bash
+python -m src.cli_entry workbook views <workbook_id>
+python -m src.cli_entry workbook delete <workbook_id>
+```
+
+### Data Source Operations
+
+```bash
+python -m src.cli_entry datasource delete <datasource_id>
+```
+
+### Extract Refresh & Jobs
+
+```bash
 python -m src.cli_entry refresh <task_id>
+python -m src.cli_entry job cancel <job_id>
 ```
 
-### Permissions
+### Schedule Management
 
 ```bash
-# Get workbook permissions
-python -m src.cli_entry permissions get <workbook_id>
+python -m src.cli_entry schedule add-workbook <schedule_id> --workbook <workbook_id>
+python -m src.cli_entry schedule add-datasource <schedule_id> --datasource <datasource_id>
+```
 
-# Add permission
-python -m src.cli_entry permissions add <workbook_id> --user <user_id> --capability Read --mode Allow
+### Permissions (Workbook)
 
-# Delete permission
-python -m src.cli_entry permissions delete <workbook_id> --user <user_id> --capability Read --mode Allow
+```bash
+python -m src.cli_entry workbook-permissions get <workbook_id>
+python -m src.cli_entry workbook-permissions add <workbook_id> --user <user_id> --capability Read --mode Allow
+python -m src.cli_entry workbook-permissions delete <workbook_id> --user <user_id> --capability Read --mode Allow
+```
+
+### Permissions (Data Source)
+
+```bash
+python -m src.cli_entry datasource-permissions get <datasource_id>
+python -m src.cli_entry datasource-permissions add <datasource_id> --user <user_id> --capability Connect --mode Allow
+python -m src.cli_entry datasource-permissions delete <datasource_id> --user <user_id> --capability Connect --mode Allow
+```
+
+### Subscriptions
+
+```bash
+python -m src.cli_entry subscription create --subject "Report" --user <user_id> --schedule <schedule_id> --content-type View --content-id <view_id>
+python -m src.cli_entry subscription delete --subscription-id <id>
+```
+
+### Favorites
+
+```bash
+python -m src.cli_entry favorites list
+python -m src.cli_entry favorites add --content-type workbook --content-id <id> --label "My Workbook"
+python -m src.cli_entry favorites delete --content-type workbook --content-id <id>
 ```
 
 ## Response Format

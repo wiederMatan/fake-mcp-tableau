@@ -33,6 +33,38 @@ python -m src.cli_entry list workbooks
 python -m src.cli_entry auth status
 ```
 
+### Available Commands
+
+**Listing:**
+- `list sites|projects|workbooks|datasources|users|groups|jobs|schedules|subscriptions|refresh-tasks`
+
+**Getting details:**
+- `get workbook|user|datasource|job|view <id>`
+
+**User management:**
+- `user add --username <name> --role <role>`
+- `user remove --user-id <id>`
+
+**Group management:**
+- `group users|add-user|remove-user <group_id> [--user <user_id>]`
+
+**Workbook/Datasource:**
+- `workbook views|delete <workbook_id>`
+- `datasource delete <datasource_id>`
+
+**Permissions:**
+- `workbook-permissions get|add|delete <id> [--user <id> --capability <name> --mode Allow|Deny]`
+- `datasource-permissions get|add|delete <id> [--user <id> --capability <name> --mode Allow|Deny]`
+
+**Jobs & Schedules:**
+- `refresh <task_id>`
+- `job cancel <job_id>`
+- `schedule add-workbook|add-datasource <schedule_id> [--workbook|--datasource <id>]`
+
+**Subscriptions & Favorites:**
+- `subscription create|delete [options]`
+- `favorites list|add|delete [options]`
+
 ### Testing
 ```bash
 # Verify authentication
@@ -42,6 +74,7 @@ python -m src.cli_entry auth status
 # List resources
 python -m src.cli_entry list projects
 python -m src.cli_entry list workbooks
+python -m src.cli_entry list users
 ```
 
 ## Architecture
@@ -58,7 +91,16 @@ src/
 
 - **session.py**: Manages `.session.json` for persisting auth tokens between CLI calls. Tokens auto-expire after 240 minutes per Tableau's session policy.
 
-- **engine.py**: `TableauEngine` class wrapping Tableau REST API v3.22. Methods for auth, discovery (sites, projects, workbooks), and operations (extract refresh, permissions).
+- **engine.py**: `TableauEngine` class wrapping Tableau REST API v3.22. Contains methods for:
+  - Authentication: `sign_in`, `sign_out`, `ensure_authenticated`, `get_auth_status`
+  - Discovery: `list_sites`, `list_projects`, `list_workbooks`, `list_datasources`, `list_users`, `list_groups`, `list_jobs`, `list_schedules`, `list_subscriptions`, `list_extract_tasks`
+  - Get details: `get_workbook`, `get_user`, `get_datasource`, `get_job`, `get_view`
+  - User/Group: `add_user`, `remove_user`, `get_group_users`, `add_user_to_group`, `remove_user_from_group`
+  - Operations: `delete_workbook`, `delete_datasource`, `list_workbook_views`, `run_extract_refresh`, `cancel_job`
+  - Permissions: `get_workbook_permissions`, `add_workbook_permission`, `delete_workbook_permission`, `get_datasource_permissions`, `add_datasource_permission`, `delete_datasource_permission`
+  - Schedules: `add_workbook_to_schedule`, `add_datasource_to_schedule`
+  - Subscriptions: `create_subscription`, `delete_subscription`
+  - Favorites: `list_favorites`, `add_favorite`, `delete_favorite`
 
 - **cli_entry.py**: CLI interface outputting JSON responses for Gemini parsing. All responses follow `{success, data, error}` format.
 

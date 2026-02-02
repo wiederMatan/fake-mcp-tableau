@@ -460,3 +460,889 @@ class TableauEngine:
             return {"message": "Permission deleted successfully"}
 
         return self._parse_response(response)
+
+    # Users methods
+
+    def list_users(self) -> dict[str, Any]:
+        """List all users in the current site.
+
+        Returns:
+            List of users
+        """
+        self.ensure_authenticated()
+        response = self._request("GET", f"/sites/{self._site_id}/users")
+        data = self._parse_response(response)
+
+        users = data.get("users", {}).get("user", [])
+        if isinstance(users, dict):
+            users = [users]
+
+        return {
+            "users": [
+                {
+                    "id": u.get("id"),
+                    "name": u.get("name"),
+                    "fullName": u.get("fullName"),
+                    "email": u.get("email"),
+                    "siteRole": u.get("siteRole"),
+                    "lastLogin": u.get("lastLogin")
+                }
+                for u in users
+            ]
+        }
+
+    def get_user(self, user_id: str) -> dict[str, Any]:
+        """Get details for a specific user.
+
+        Args:
+            user_id: User LUID
+
+        Returns:
+            User details
+        """
+        self.ensure_authenticated()
+        response = self._request("GET", f"/sites/{self._site_id}/users/{user_id}")
+        data = self._parse_response(response)
+
+        user = data.get("user", {})
+        return {
+            "id": user.get("id"),
+            "name": user.get("name"),
+            "fullName": user.get("fullName"),
+            "email": user.get("email"),
+            "siteRole": user.get("siteRole"),
+            "lastLogin": user.get("lastLogin"),
+            "externalAuthUserId": user.get("externalAuthUserId")
+        }
+
+    def add_user(self, username: str, site_role: str = "Viewer") -> dict[str, Any]:
+        """Add a user to the site.
+
+        Args:
+            username: Username for the new user
+            site_role: Site role (Creator, Explorer, Viewer, etc.)
+
+        Returns:
+            Created user details
+        """
+        self.ensure_authenticated()
+        payload = {
+            "user": {
+                "name": username,
+                "siteRole": site_role
+            }
+        }
+
+        response = self._request(
+            "POST",
+            f"/sites/{self._site_id}/users",
+            data=payload
+        )
+        data = self._parse_response(response)
+
+        user = data.get("user", {})
+        return {
+            "id": user.get("id"),
+            "name": user.get("name"),
+            "siteRole": user.get("siteRole")
+        }
+
+    def remove_user(self, user_id: str) -> dict[str, Any]:
+        """Remove a user from the site.
+
+        Args:
+            user_id: User LUID
+
+        Returns:
+            Deletion confirmation
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "DELETE",
+            f"/sites/{self._site_id}/users/{user_id}"
+        )
+
+        if response.status_code == 204:
+            return {"message": "User removed successfully"}
+
+        return self._parse_response(response)
+
+    # Groups methods
+
+    def list_groups(self) -> dict[str, Any]:
+        """List all groups in the current site.
+
+        Returns:
+            List of groups
+        """
+        self.ensure_authenticated()
+        response = self._request("GET", f"/sites/{self._site_id}/groups")
+        data = self._parse_response(response)
+
+        groups = data.get("groups", {}).get("group", [])
+        if isinstance(groups, dict):
+            groups = [groups]
+
+        return {
+            "groups": [
+                {
+                    "id": g.get("id"),
+                    "name": g.get("name"),
+                    "domainName": g.get("domain", {}).get("name"),
+                    "minimumSiteRole": g.get("minimumSiteRole")
+                }
+                for g in groups
+            ]
+        }
+
+    def get_group_users(self, group_id: str) -> dict[str, Any]:
+        """Get users in a group.
+
+        Args:
+            group_id: Group LUID
+
+        Returns:
+            List of users in the group
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "GET",
+            f"/sites/{self._site_id}/groups/{group_id}/users"
+        )
+        data = self._parse_response(response)
+
+        users = data.get("users", {}).get("user", [])
+        if isinstance(users, dict):
+            users = [users]
+
+        return {
+            "users": [
+                {
+                    "id": u.get("id"),
+                    "name": u.get("name"),
+                    "siteRole": u.get("siteRole")
+                }
+                for u in users
+            ]
+        }
+
+    def add_user_to_group(self, group_id: str, user_id: str) -> dict[str, Any]:
+        """Add a user to a group.
+
+        Args:
+            group_id: Group LUID
+            user_id: User LUID
+
+        Returns:
+            Confirmation
+        """
+        self.ensure_authenticated()
+        payload = {
+            "user": {"id": user_id}
+        }
+
+        response = self._request(
+            "POST",
+            f"/sites/{self._site_id}/groups/{group_id}/users",
+            data=payload
+        )
+        data = self._parse_response(response)
+
+        return {"message": "User added to group successfully", "user": data.get("user", {})}
+
+    def remove_user_from_group(self, group_id: str, user_id: str) -> dict[str, Any]:
+        """Remove a user from a group.
+
+        Args:
+            group_id: Group LUID
+            user_id: User LUID
+
+        Returns:
+            Deletion confirmation
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "DELETE",
+            f"/sites/{self._site_id}/groups/{group_id}/users/{user_id}"
+        )
+
+        if response.status_code == 204:
+            return {"message": "User removed from group successfully"}
+
+        return self._parse_response(response)
+
+    # Data Sources methods
+
+    def list_datasources(self) -> dict[str, Any]:
+        """List all data sources in the current site.
+
+        Returns:
+            List of data sources
+        """
+        self.ensure_authenticated()
+        response = self._request("GET", f"/sites/{self._site_id}/datasources")
+        data = self._parse_response(response)
+
+        datasources = data.get("datasources", {}).get("datasource", [])
+        if isinstance(datasources, dict):
+            datasources = [datasources]
+
+        return {
+            "datasources": [
+                {
+                    "id": d.get("id"),
+                    "name": d.get("name"),
+                    "type": d.get("type"),
+                    "projectId": d.get("project", {}).get("id"),
+                    "projectName": d.get("project", {}).get("name"),
+                    "owner": d.get("owner", {}).get("name"),
+                    "createdAt": d.get("createdAt"),
+                    "updatedAt": d.get("updatedAt"),
+                    "isCertified": d.get("isCertified")
+                }
+                for d in datasources
+            ]
+        }
+
+    def get_datasource(self, datasource_id: str) -> dict[str, Any]:
+        """Get details for a specific data source.
+
+        Args:
+            datasource_id: Data source LUID
+
+        Returns:
+            Data source details
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "GET",
+            f"/sites/{self._site_id}/datasources/{datasource_id}"
+        )
+        data = self._parse_response(response)
+
+        ds = data.get("datasource", {})
+        return {
+            "id": ds.get("id"),
+            "name": ds.get("name"),
+            "type": ds.get("type"),
+            "description": ds.get("description"),
+            "projectId": ds.get("project", {}).get("id"),
+            "projectName": ds.get("project", {}).get("name"),
+            "owner": ds.get("owner", {}).get("name"),
+            "ownerId": ds.get("owner", {}).get("id"),
+            "createdAt": ds.get("createdAt"),
+            "updatedAt": ds.get("updatedAt"),
+            "isCertified": ds.get("isCertified"),
+            "webpageUrl": ds.get("webpageUrl")
+        }
+
+    def delete_datasource(self, datasource_id: str) -> dict[str, Any]:
+        """Delete a data source.
+
+        Args:
+            datasource_id: Data source LUID
+
+        Returns:
+            Deletion confirmation
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "DELETE",
+            f"/sites/{self._site_id}/datasources/{datasource_id}"
+        )
+
+        if response.status_code == 204:
+            return {"message": "Data source deleted successfully"}
+
+        return self._parse_response(response)
+
+    def get_datasource_permissions(self, datasource_id: str) -> dict[str, Any]:
+        """Get permissions for a data source.
+
+        Args:
+            datasource_id: Data source LUID
+
+        Returns:
+            Data source permissions
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "GET",
+            f"/sites/{self._site_id}/datasources/{datasource_id}/permissions"
+        )
+        data = self._parse_response(response)
+
+        permissions = data.get("permissions", {})
+        grant_capabilities = permissions.get("granteeCapabilities", [])
+        if isinstance(grant_capabilities, dict):
+            grant_capabilities = [grant_capabilities]
+
+        result = []
+        for gc in grant_capabilities:
+            user = gc.get("user", {})
+            group = gc.get("group", {})
+            capabilities = gc.get("capabilities", {}).get("capability", [])
+            if isinstance(capabilities, dict):
+                capabilities = [capabilities]
+
+            result.append({
+                "user": {"id": user.get("id"), "name": user.get("name")} if user else None,
+                "group": {"id": group.get("id"), "name": group.get("name")} if group else None,
+                "capabilities": [
+                    {"name": c.get("name"), "mode": c.get("mode")}
+                    for c in capabilities
+                ]
+            })
+
+        return {"permissions": result}
+
+    def add_datasource_permission(
+        self,
+        datasource_id: str,
+        user_id: str,
+        capability_name: str,
+        capability_mode: str
+    ) -> dict[str, Any]:
+        """Add a permission to a data source.
+
+        Args:
+            datasource_id: Data source LUID
+            user_id: User LUID
+            capability_name: Capability name
+            capability_mode: Allow or Deny
+
+        Returns:
+            Updated permissions
+        """
+        self.ensure_authenticated()
+
+        payload = {
+            "permissions": {
+                "granteeCapabilities": [
+                    {
+                        "user": {"id": user_id},
+                        "capabilities": {
+                            "capability": [
+                                {"name": capability_name, "mode": capability_mode}
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+
+        response = self._request(
+            "PUT",
+            f"/sites/{self._site_id}/datasources/{datasource_id}/permissions",
+            data=payload
+        )
+        data = self._parse_response(response)
+
+        return {"message": "Permission added successfully", "data": data}
+
+    def delete_datasource_permission(
+        self,
+        datasource_id: str,
+        user_id: str,
+        capability_name: str,
+        capability_mode: str
+    ) -> dict[str, Any]:
+        """Delete a permission from a data source.
+
+        Args:
+            datasource_id: Data source LUID
+            user_id: User LUID
+            capability_name: Capability name
+            capability_mode: Allow or Deny
+
+        Returns:
+            Deletion confirmation
+        """
+        self.ensure_authenticated()
+
+        response = self._request(
+            "DELETE",
+            f"/sites/{self._site_id}/datasources/{datasource_id}/permissions/users/{user_id}/{capability_name}/{capability_mode}"
+        )
+
+        if response.status_code == 204:
+            return {"message": "Permission deleted successfully"}
+
+        return self._parse_response(response)
+
+    # Extended Workbook methods
+
+    def delete_workbook(self, workbook_id: str) -> dict[str, Any]:
+        """Delete a workbook.
+
+        Args:
+            workbook_id: Workbook LUID
+
+        Returns:
+            Deletion confirmation
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "DELETE",
+            f"/sites/{self._site_id}/workbooks/{workbook_id}"
+        )
+
+        if response.status_code == 204:
+            return {"message": "Workbook deleted successfully"}
+
+        return self._parse_response(response)
+
+    def list_workbook_views(self, workbook_id: str) -> dict[str, Any]:
+        """List views in a workbook.
+
+        Args:
+            workbook_id: Workbook LUID
+
+        Returns:
+            List of views
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "GET",
+            f"/sites/{self._site_id}/workbooks/{workbook_id}/views"
+        )
+        data = self._parse_response(response)
+
+        views = data.get("views", {}).get("view", [])
+        if isinstance(views, dict):
+            views = [views]
+
+        return {
+            "views": [
+                {
+                    "id": v.get("id"),
+                    "name": v.get("name"),
+                    "contentUrl": v.get("contentUrl"),
+                    "viewUrlName": v.get("viewUrlName")
+                }
+                for v in views
+            ]
+        }
+
+    def get_view(self, view_id: str) -> dict[str, Any]:
+        """Get details for a specific view.
+
+        Args:
+            view_id: View LUID
+
+        Returns:
+            View details
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "GET",
+            f"/sites/{self._site_id}/views/{view_id}"
+        )
+        data = self._parse_response(response)
+
+        view = data.get("view", {})
+        return {
+            "id": view.get("id"),
+            "name": view.get("name"),
+            "contentUrl": view.get("contentUrl"),
+            "workbookId": view.get("workbook", {}).get("id"),
+            "ownerId": view.get("owner", {}).get("id"),
+            "totalViewCount": view.get("usage", {}).get("totalViewCount")
+        }
+
+    # Jobs methods
+
+    def list_jobs(self) -> dict[str, Any]:
+        """List all jobs in the current site.
+
+        Returns:
+            List of jobs
+        """
+        self.ensure_authenticated()
+        response = self._request("GET", f"/sites/{self._site_id}/jobs")
+        data = self._parse_response(response)
+
+        jobs = data.get("backgroundJobs", {}).get("backgroundJob", [])
+        if isinstance(jobs, dict):
+            jobs = [jobs]
+
+        return {
+            "jobs": [
+                {
+                    "id": j.get("id"),
+                    "status": j.get("status"),
+                    "jobType": j.get("jobType"),
+                    "createdAt": j.get("createdAt"),
+                    "startedAt": j.get("startedAt"),
+                    "endedAt": j.get("endedAt"),
+                    "progress": j.get("progress")
+                }
+                for j in jobs
+            ]
+        }
+
+    def get_job(self, job_id: str) -> dict[str, Any]:
+        """Get details for a specific job.
+
+        Args:
+            job_id: Job LUID
+
+        Returns:
+            Job details
+        """
+        self.ensure_authenticated()
+        response = self._request("GET", f"/sites/{self._site_id}/jobs/{job_id}")
+        data = self._parse_response(response)
+
+        job = data.get("job", {})
+        return {
+            "id": job.get("id"),
+            "status": job.get("status"),
+            "jobType": job.get("type"),
+            "createdAt": job.get("createdAt"),
+            "startedAt": job.get("startedAt"),
+            "completedAt": job.get("completedAt"),
+            "progress": job.get("progress"),
+            "finishCode": job.get("finishCode")
+        }
+
+    def cancel_job(self, job_id: str) -> dict[str, Any]:
+        """Cancel a running job.
+
+        Args:
+            job_id: Job LUID
+
+        Returns:
+            Cancellation confirmation
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "PUT",
+            f"/sites/{self._site_id}/jobs/{job_id}"
+        )
+
+        if response.status_code == 204:
+            return {"message": "Job cancelled successfully"}
+
+        return self._parse_response(response)
+
+    # Schedules methods
+
+    def list_schedules(self) -> dict[str, Any]:
+        """List all schedules (Server only).
+
+        Returns:
+            List of schedules
+        """
+        self.ensure_authenticated()
+        response = self._request("GET", "/schedules")
+        data = self._parse_response(response)
+
+        schedules = data.get("schedules", {}).get("schedule", [])
+        if isinstance(schedules, dict):
+            schedules = [schedules]
+
+        return {
+            "schedules": [
+                {
+                    "id": s.get("id"),
+                    "name": s.get("name"),
+                    "type": s.get("type"),
+                    "state": s.get("state"),
+                    "priority": s.get("priority"),
+                    "frequency": s.get("frequency"),
+                    "nextRunAt": s.get("nextRunAt")
+                }
+                for s in schedules
+            ]
+        }
+
+    def add_workbook_to_schedule(
+        self,
+        schedule_id: str,
+        workbook_id: str
+    ) -> dict[str, Any]:
+        """Add a workbook to a refresh schedule.
+
+        Args:
+            schedule_id: Schedule LUID
+            workbook_id: Workbook LUID
+
+        Returns:
+            Task information
+        """
+        self.ensure_authenticated()
+        payload = {
+            "task": {
+                "extractRefresh": {
+                    "workbook": {"id": workbook_id}
+                }
+            }
+        }
+
+        response = self._request(
+            "POST",
+            f"/sites/{self._site_id}/schedules/{schedule_id}/workbooks",
+            data=payload
+        )
+        data = self._parse_response(response)
+
+        return {"message": "Workbook added to schedule", "task": data.get("task", {})}
+
+    def add_datasource_to_schedule(
+        self,
+        schedule_id: str,
+        datasource_id: str
+    ) -> dict[str, Any]:
+        """Add a data source to a refresh schedule.
+
+        Args:
+            schedule_id: Schedule LUID
+            datasource_id: Data source LUID
+
+        Returns:
+            Task information
+        """
+        self.ensure_authenticated()
+        payload = {
+            "task": {
+                "extractRefresh": {
+                    "datasource": {"id": datasource_id}
+                }
+            }
+        }
+
+        response = self._request(
+            "POST",
+            f"/sites/{self._site_id}/schedules/{schedule_id}/datasources",
+            data=payload
+        )
+        data = self._parse_response(response)
+
+        return {"message": "Data source added to schedule", "task": data.get("task", {})}
+
+    # Subscriptions methods
+
+    def list_subscriptions(self) -> dict[str, Any]:
+        """List all subscriptions in the current site.
+
+        Returns:
+            List of subscriptions
+        """
+        self.ensure_authenticated()
+        response = self._request("GET", f"/sites/{self._site_id}/subscriptions")
+        data = self._parse_response(response)
+
+        subscriptions = data.get("subscriptions", {}).get("subscription", [])
+        if isinstance(subscriptions, dict):
+            subscriptions = [subscriptions]
+
+        return {
+            "subscriptions": [
+                {
+                    "id": s.get("id"),
+                    "subject": s.get("subject"),
+                    "userId": s.get("user", {}).get("id"),
+                    "userName": s.get("user", {}).get("name"),
+                    "viewId": s.get("content", {}).get("id") if s.get("content", {}).get("type") == "View" else None,
+                    "workbookId": s.get("content", {}).get("id") if s.get("content", {}).get("type") == "Workbook" else None,
+                    "scheduleId": s.get("schedule", {}).get("id"),
+                    "scheduleName": s.get("schedule", {}).get("name")
+                }
+                for s in subscriptions
+            ]
+        }
+
+    def create_subscription(
+        self,
+        subject: str,
+        user_id: str,
+        schedule_id: str,
+        content_type: str,
+        content_id: str
+    ) -> dict[str, Any]:
+        """Create a new subscription.
+
+        Args:
+            subject: Email subject line
+            user_id: User LUID to receive subscription
+            schedule_id: Schedule LUID
+            content_type: "View" or "Workbook"
+            content_id: View or Workbook LUID
+
+        Returns:
+            Created subscription
+        """
+        self.ensure_authenticated()
+        payload = {
+            "subscription": {
+                "subject": subject,
+                "content": {
+                    "type": content_type,
+                    "id": content_id
+                },
+                "schedule": {"id": schedule_id},
+                "user": {"id": user_id}
+            }
+        }
+
+        response = self._request(
+            "POST",
+            f"/sites/{self._site_id}/subscriptions",
+            data=payload
+        )
+        data = self._parse_response(response)
+
+        sub = data.get("subscription", {})
+        return {
+            "id": sub.get("id"),
+            "subject": sub.get("subject"),
+            "message": "Subscription created successfully"
+        }
+
+    def delete_subscription(self, subscription_id: str) -> dict[str, Any]:
+        """Delete a subscription.
+
+        Args:
+            subscription_id: Subscription LUID
+
+        Returns:
+            Deletion confirmation
+        """
+        self.ensure_authenticated()
+        response = self._request(
+            "DELETE",
+            f"/sites/{self._site_id}/subscriptions/{subscription_id}"
+        )
+
+        if response.status_code == 204:
+            return {"message": "Subscription deleted successfully"}
+
+        return self._parse_response(response)
+
+    # Favorites methods
+
+    def list_favorites(self, user_id: str | None = None) -> dict[str, Any]:
+        """List favorites for a user.
+
+        Args:
+            user_id: User LUID (defaults to current user)
+
+        Returns:
+            List of favorites
+        """
+        self.ensure_authenticated()
+        if user_id is None:
+            user_id = self._user_id
+
+        response = self._request(
+            "GET",
+            f"/sites/{self._site_id}/favorites/{user_id}"
+        )
+        data = self._parse_response(response)
+
+        favorites = data.get("favorites", {}).get("favorite", [])
+        if isinstance(favorites, dict):
+            favorites = [favorites]
+
+        result = []
+        for f in favorites:
+            item = {
+                "label": f.get("label")
+            }
+            if f.get("workbook"):
+                item["type"] = "workbook"
+                item["id"] = f.get("workbook", {}).get("id")
+                item["name"] = f.get("workbook", {}).get("name")
+            elif f.get("view"):
+                item["type"] = "view"
+                item["id"] = f.get("view", {}).get("id")
+                item["name"] = f.get("view", {}).get("name")
+            elif f.get("datasource"):
+                item["type"] = "datasource"
+                item["id"] = f.get("datasource", {}).get("id")
+                item["name"] = f.get("datasource", {}).get("name")
+            elif f.get("project"):
+                item["type"] = "project"
+                item["id"] = f.get("project", {}).get("id")
+                item["name"] = f.get("project", {}).get("name")
+            result.append(item)
+
+        return {"favorites": result}
+
+    def add_favorite(
+        self,
+        content_type: str,
+        content_id: str,
+        label: str,
+        user_id: str | None = None
+    ) -> dict[str, Any]:
+        """Add an item to favorites.
+
+        Args:
+            content_type: Type of content (workbook, view, datasource, project)
+            content_id: Content LUID
+            label: Label for the favorite
+            user_id: User LUID (defaults to current user)
+
+        Returns:
+            Confirmation
+        """
+        self.ensure_authenticated()
+        if user_id is None:
+            user_id = self._user_id
+
+        payload = {
+            "favorite": {
+                "label": label,
+                content_type: {"id": content_id}
+            }
+        }
+
+        response = self._request(
+            "PUT",
+            f"/sites/{self._site_id}/favorites/{user_id}",
+            data=payload
+        )
+        data = self._parse_response(response)
+
+        return {"message": "Added to favorites", "favorite": data.get("favorites", {})}
+
+    def delete_favorite(
+        self,
+        content_type: str,
+        content_id: str,
+        user_id: str | None = None
+    ) -> dict[str, Any]:
+        """Remove an item from favorites.
+
+        Args:
+            content_type: Type of content (workbook, view, datasource, project)
+            content_id: Content LUID
+            user_id: User LUID (defaults to current user)
+
+        Returns:
+            Deletion confirmation
+        """
+        self.ensure_authenticated()
+        if user_id is None:
+            user_id = self._user_id
+
+        # Map content type to URL path
+        type_map = {
+            "workbook": "workbooks",
+            "view": "views",
+            "datasource": "datasources",
+            "project": "projects"
+        }
+        url_type = type_map.get(content_type, content_type + "s")
+
+        response = self._request(
+            "DELETE",
+            f"/sites/{self._site_id}/favorites/{user_id}/{url_type}/{content_id}"
+        )
+
+        if response.status_code == 204:
+            return {"message": "Removed from favorites"}
+
+        return self._parse_response(response)
