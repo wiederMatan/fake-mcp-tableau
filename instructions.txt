@@ -1,0 +1,136 @@
+# Tableau API Integration Tool
+
+You have access to a Python CLI tool that allows you to interact with Tableau Server/Cloud REST API. Use this tool to help users manage their Tableau environment.
+
+## How to Use
+
+Run commands using Python from the project directory:
+```bash
+python -m src.cli_entry <command> [options]
+```
+
+All responses are JSON formatted with the following structure:
+```json
+{
+  "success": true/false,
+  "data": { ... },
+  "error": null or "error message"
+}
+```
+
+## Available Commands
+
+### Authentication
+
+**Login** - Authenticate with Tableau using configured credentials:
+```bash
+python -m src.cli_entry auth login
+```
+
+**Logout** - Sign out and clear session:
+```bash
+python -m src.cli_entry auth logout
+```
+
+**Check Status** - View current authentication status:
+```bash
+python -m src.cli_entry auth status
+```
+
+### Listing Resources
+
+**List Sites** (Tableau Server only):
+```bash
+python -m src.cli_entry list sites
+```
+
+**List Projects** in current site:
+```bash
+python -m src.cli_entry list projects
+```
+
+**List Workbooks** in current site:
+```bash
+python -m src.cli_entry list workbooks
+```
+
+**List Extract Refresh Tasks**:
+```bash
+python -m src.cli_entry list refresh-tasks
+```
+
+### Getting Resource Details
+
+**Get Workbook Details**:
+```bash
+python -m src.cli_entry get workbook <workbook_id>
+```
+
+### Extract Refresh Operations
+
+**Trigger Extract Refresh**:
+```bash
+python -m src.cli_entry refresh <task_id>
+```
+
+### Permissions Management
+
+**Get Workbook Permissions**:
+```bash
+python -m src.cli_entry permissions get <workbook_id>
+```
+
+**Add Permission** to workbook:
+```bash
+python -m src.cli_entry permissions add <workbook_id> --user <user_id> --capability <capability_name> --mode Allow|Deny
+```
+
+Common capabilities: Read, Write, Filter, ExportData, ViewComments, AddComment, ShareView, ExportImage, Delete, ChangePermissions, WebAuthoring
+
+**Delete Permission** from workbook:
+```bash
+python -m src.cli_entry permissions delete <workbook_id> --user <user_id> --capability <capability_name> --mode Allow|Deny
+```
+
+## Example Workflows
+
+### 1. View Available Workbooks
+```bash
+python -m src.cli_entry auth login
+python -m src.cli_entry list workbooks
+```
+
+### 2. Check and Refresh Extract
+```bash
+python -m src.cli_entry list refresh-tasks
+python -m src.cli_entry refresh <task_id_from_list>
+```
+
+### 3. Grant User Read Access to Workbook
+```bash
+python -m src.cli_entry permissions add abc123-workbook-id --user xyz789-user-id --capability Read --mode Allow
+```
+
+## Error Handling
+
+If a command fails, the response will have `"success": false` and an error message:
+```json
+{
+  "success": false,
+  "data": null,
+  "error": "API Error (401): Unauthorized - Invalid credentials"
+}
+```
+
+Common errors:
+- **401 Unauthorized**: Credentials invalid or session expired. Run `auth login` again.
+- **403 Forbidden**: User doesn't have permission for this operation.
+- **404 Not Found**: Resource ID doesn't exist.
+- **500 Internal Server Error**: Tableau server issue, try again later.
+
+## Notes
+
+- Sessions expire after 4 hours (240 minutes). The tool auto-refreshes when needed.
+- Always check `auth status` if operations are failing unexpectedly.
+- IDs in Tableau are LUIDs (Long Unique IDs) - use the exact values from list commands.
+- For Tableau Cloud, the site content URL is required in the .env configuration.
